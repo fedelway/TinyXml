@@ -1,29 +1,21 @@
-#ifndef _XML_NODE_DEFINED_
-#define _XML_NODE_DEFINED_
+#ifndef _TINY_XML_DEFINED_
+#define _TINY_XML_DEFINED_
 
 #include <string>
-#include <vector>
-#include <unordered_map>
-#include <string_view>
+#include "XmlNode.h"
 
-#ifdef _WIN32
-#define EXPORT_ATTR __declspec(dllexport)
-#else
-#define EXPORT_ATTR
-#endif
-
-const class EXPORT_ATTR XmlNode{
+const class TinyXml {
 
 public:
-	XmlNode();
-	XmlNode(const std::string_view& xmlText);
-	~XmlNode();
+	TinyXml(const std::string& xmlText);
+
+	static TinyXml ReadFile(const std::string& filename);
 
 	std::string toString();
 	std::string_view toStringView();
 	XmlNode& getNode(const std::string& key);
 	std::vector<XmlNode>& getVector(const std::string& key);
-	
+
 	int numberOfTags();
 	bool hasTag(const std::string& name);
 
@@ -31,10 +23,11 @@ public:
 	XmlNode& operator() (const std::string& key, int index);
 	operator std::string();
 	operator std::string_view();
+	operator XmlNode();
 
 private:
-	std::unordered_map<std::string,std::vector<XmlNode>> tags;
-	std::string_view content;
+	XmlNode xml;
+	std::string xmlText;
 };
 
-#endif
+#endif //_TINY_XML_DEFINED_

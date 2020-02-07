@@ -1,8 +1,5 @@
 #include "XmlNode.h"
 
-#include <fstream>
-#include <sstream>
-
 using namespace std;
 
 XmlNode::XmlNode()
@@ -12,7 +9,7 @@ XmlNode::~XmlNode()
 {
 }
 
-XmlNode::XmlNode(const string& xmlText)
+XmlNode::XmlNode(const string_view& xmlText)
 {
 	content = xmlText;
 
@@ -34,7 +31,7 @@ XmlNode::XmlNode(const string& xmlText)
 
 		start+=1; //Salto el <
 
-		string tagName = xmlText.substr(start,end-start);
+		string_view tagName = xmlText.substr(start,end-start);
 		
 		//Salvo la primer línea de la declaracion XML
 		if(tagName[0] == '?'){
@@ -48,7 +45,7 @@ XmlNode::XmlNode(const string& xmlText)
 
 		if(isComment)
 			end = xmlText.find("-->",start);
-		else end = xmlText.find("</" + tagName + ">",end);
+		else end = xmlText.find("</" + std::string(tagName) + ">",end);
 
 		if(start == string::npos){
 			start = end;
@@ -58,14 +55,14 @@ XmlNode::XmlNode(const string& xmlText)
 		if(!isComment){
 			start += tagName.length() + 1; //Salto el nombre del tag y el >
 
-			string content = xmlText.substr(start,end-start);
+			string_view content = xmlText.substr(start,end-start);
 
 			//Si no existe el vector de nodos, lo creo
-			if(this->tags.count(tagName) == 0)
-				this->tags[tagName] = vector<XmlNode>();
+			if(this->tags.count(std::string(tagName)) == 0)
+				this->tags[std::string(tagName)] = vector<XmlNode>();
 
 			//Agrego recursivamente nodos xml
-			this->tags[tagName].push_back(XmlNode(content));
+			this->tags[std::string(tagName)].push_back(XmlNode(content));
 		}
 
 		//Paso al siguiente tag
@@ -75,17 +72,12 @@ XmlNode::XmlNode(const string& xmlText)
 	}
 }
 
-XmlNode XmlNode::ReadFile(const std::string& filename)
+string XmlNode::toString()
 {
-	ifstream file(filename.c_str());
-
-	stringstream buffer;
-	buffer << file.rdbuf();
-
-	return XmlNode(buffer.str());
+	return std::string(this->content);
 }
 
-string XmlNode::toString()
+std::string_view XmlNode::toStringView()
 {
 	return this->content;
 }
@@ -112,7 +104,12 @@ XmlNode& XmlNode::operator() (const std::string& key, int index)
 
 XmlNode::operator std::string()
 {
-	return this->content;
+	return std::string(this->content);
+}
+
+XmlNode::operator std::string_view()
+{
+	return this->toStringView();
 }
 
 int XmlNode::numberOfTags()

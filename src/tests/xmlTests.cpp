@@ -1,11 +1,20 @@
 #pragma once
 
 #include "gtest\gtest.h"
-#include "../XmlNode.h"
+#include "../TinyXml.h"
+
+TEST(XmlTests, TinyXmlToXmlNodeConversion)
+{
+	auto tinyxml = TinyXml("<Parent><Child>Hello</Child></Parent>");
+
+	XmlNode xmlNode = tinyxml;
+
+	ASSERT_EQ("Hello", xmlNode["Parent"]["Child"].toString());
+}
 
 TEST(XmlTests, ParseSimpleXml)
 {
-	auto xml = XmlNode("<Parent>"
+	auto xml = TinyXml("<Parent>"
 		"<Child>CHILD!</Child>"
 		"</Parent>");
 
@@ -22,7 +31,7 @@ TEST(XmlTests, ParseSimpleXml)
 
 TEST(XmlTests, TestCount)
 {
-	auto xml = XmlNode("<TAG></TAG>");
+	auto xml = TinyXml("<TAG></TAG>");
 
 	ASSERT_TRUE(xml.hasTag("TAG"));
 	ASSERT_FALSE(xml.hasTag("Invalid tag"));
@@ -30,8 +39,8 @@ TEST(XmlTests, TestCount)
 
 TEST(XmlTests, NumberOfTags)
 {
-	auto oneTag = XmlNode("<TAG></TAG>");
-	auto twoTag = XmlNode("<Tag1></Tag1><Tag2><Tag3></Tag3></Tag2>");
+	auto oneTag = TinyXml("<TAG></TAG>");
+	auto twoTag = TinyXml("<Tag1></Tag1><Tag2><Tag3></Tag3></Tag2>");
 
 	ASSERT_EQ(oneTag.numberOfTags(), 1);
 	ASSERT_EQ(twoTag.numberOfTags(), 2);
@@ -41,7 +50,7 @@ TEST(XmlTests, NumberOfTags)
 TEST(XmlTests, WrongXMLShouldNotThrow)
 {
 	try {
-		auto xml = XmlNode("Any text");
+		auto xml = TinyXml("Any text");
 
 		ASSERT_EQ(xml.numberOfTags(), 0);
 	}
@@ -54,7 +63,7 @@ TEST(XmlTests, WrongXMLShouldNotThrow)
 TEST(XmlTests, EmptyXmlShouldNotThrow)
 {
 	try {
-		auto xml = XmlNode("");
+		auto xml = TinyXml("");
 
 		ASSERT_EQ(xml.numberOfTags(), 0);
 	}
@@ -66,7 +75,7 @@ TEST(XmlTests, EmptyXmlShouldNotThrow)
 
 TEST(XmlTests, BadlyClosedTag)
 {
-	auto xml = XmlNode("<parentTag>"
+	auto xml = TinyXml("<parentTag>"
 		"<Tag1>"
 		"<Tag2>"
 		"</Tag1>"
@@ -88,7 +97,7 @@ TEST(XmlTests, BadlyClosedTag)
 
 TEST(XmlTests, TagNotFoundShouldThrow)
 {
-	auto xml = XmlNode("<Tag1></Tag1>");
+	auto xml = TinyXml("<Tag1></Tag1>");
 
 	ASSERT_ANY_THROW({
 		xml["NonExistingTag"];
@@ -98,16 +107,28 @@ TEST(XmlTests, TagNotFoundShouldThrow)
 TEST(XmlTests, ImplicitStringConversion) {
 
 	std::string text = "Text";
-	auto xml = XmlNode("<Tag1>" + text + "</Tag1>");
+	std::string testXml = "<Tag1>" + text + "</Tag1>";
+	auto xml = TinyXml(testXml);
 
 	std::string textFromXml = xml["Tag1"];
 
 	ASSERT_EQ(text, textFromXml);
 }
 
-TEST(XmlTests, Vector)
+TEST(XmlTests, ImplicitStringViewConversion)
 {
-	auto xml = XmlNode(
+	std::string text = "Text";
+	std::string testXml = "<Tag1>" + text + "</Tag1>";
+	auto xml = TinyXml(testXml);
+
+	std::string_view textFromXml = xml["Tag1"];
+
+	ASSERT_EQ(text, textFromXml);
+}
+
+TEST(XmlTests, VectorCountIsCorrect)
+{
+	auto xml = TinyXml(
 		"<Tag1>"
 		"<Tag2>1</Tag2>"
 		"<Tag2>2</Tag2>"
@@ -121,7 +142,7 @@ TEST(XmlTests, Vector)
 
 TEST(XmlTests, VectorTakesFirst)
 {
-	auto xml = XmlNode(
+	auto xml = TinyXml(
 		"<Tag1>"
 		"<Tag2>1</Tag2>"
 		"<Tag2>2</Tag2>"
@@ -133,7 +154,7 @@ TEST(XmlTests, VectorTakesFirst)
 
 TEST(XmlTests, VectorOperator)
 {
-	auto xml = XmlNode(
+	auto xml = TinyXml(
 		"<Tag1>"
 		"<Tag2>1</Tag2>"
 		"<Tag2>2</Tag2>"
@@ -147,7 +168,7 @@ TEST(XmlTests, VectorOperator)
 
 TEST(XmlTests, XmlDeclaration)
 {
-	auto xml = XmlNode(
+	auto xml = TinyXml(
 		"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>"
 		"<Tag1>"
 		"<Tag2>hello</Tag2>"

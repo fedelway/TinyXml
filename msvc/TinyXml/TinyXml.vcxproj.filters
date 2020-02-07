@@ -18,9 +18,15 @@
     <ClCompile Include="..\..\src\XmlNode.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\TinyXml.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\XmlNode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\TinyXml.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
